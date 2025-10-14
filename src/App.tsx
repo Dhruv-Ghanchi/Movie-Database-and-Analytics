@@ -32,9 +32,9 @@ const App = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  // TMDB API Configuration
-  const API_KEY = '8265bd1679663a7ea12ac168da84d2e8';
-  const BASE_URL = 'https://api.themoviedb.org/3';
+  // API Configuration - Using Supabase Edge Function as proxy
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/tmdb-proxy`;
   const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
   // Genre mapping for data visualization
@@ -53,10 +53,14 @@ const App = () => {
       setLoading(true);
       try {
         // ES6 Feature: Template literals for dynamic URL construction
-        const response = await fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`);
+        const response = await fetch(`${EDGE_FUNCTION_URL}?endpoint=trending`);
         const data = await response.json();
-        // ES6 Feature: Array method - slice to get top 12 movies
-        setTrendingMovies(data.results.slice(0, 12));
+
+        // Check if we got valid data
+        if (data.results && Array.isArray(data.results)) {
+          // ES6 Feature: Array method - slice to get top 12 movies
+          setTrendingMovies(data.results.slice(0, 12));
+        }
       } catch (error) {
         console.error('Error fetching trending movies:', error);
       } finally {
@@ -75,10 +79,13 @@ const App = () => {
     try {
       // ES6 Feature: Template literals with embedded expressions
       const response = await fetch(
-        `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(searchQuery)}`
+        `${EDGE_FUNCTION_URL}?endpoint=search&query=${encodeURIComponent(searchQuery)}`
       );
       const data = await response.json();
-      setSearchResults(data.results);
+
+      if (data.results && Array.isArray(data.results)) {
+        setSearchResults(data.results);
+      }
     } catch (error) {
       console.error('Error searching movies:', error);
     } finally {
@@ -90,10 +97,13 @@ const App = () => {
   const fetchMovieDetails = async (movieId: number) => {
     setLoading(true);
     try {
-      const response = await fetch(`${BASE_URL}/movie/${movieId}?api_key=${API_KEY}`);
+      const response = await fetch(`${EDGE_FUNCTION_URL}?endpoint=movie&movieId=${movieId}`);
       const data = await response.json();
-      setSelectedMovie(data);
-      setShowModal(true);
+
+      if (data && data.id) {
+        setSelectedMovie(data);
+        setShowModal(true);
+      }
     } catch (error) {
       console.error('Error fetching movie details:', error);
     } finally {
