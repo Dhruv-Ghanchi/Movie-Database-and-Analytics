@@ -29,3 +29,11 @@ This project was built to strengthen practical skills in **TypeScript, API handl
 - **Data Visualization:** Chart.js  
 - **API Integration:** External Movie API (TMDb or similar)  
 - **Tools:** Git, GitHub, npm  
+
+---
+
+## 👤 Author
+
+Dhruv Chandrakant Ghanchi  
+GitHub: https://github.com/Dhruv-Ghanchi  
+LinkedIn: https://www.linkedin.com/in/dhruv-ghanchi-9b0180371/
